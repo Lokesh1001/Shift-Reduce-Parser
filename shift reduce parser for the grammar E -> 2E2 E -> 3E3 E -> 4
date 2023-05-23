@@ -1,0 +1,84 @@
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+// shift reduce parser for the grammar
+// E -> 2E2
+// E -> 3E3
+// E -> 4
+
+int stk[100];int stk_top=0;
+char str[100]; int str_pos=0;
+
+void shift(){
+
+if(str[str_pos]!='$'){
+stk[stk_top]=str[str_pos];
+stk_top++;
+str_pos++;
+printf("Shifted successfully !\n");
+}
+
+}
+
+void shift_reduce_parser(){
+
+bool no_operation=true; // variable to make sure an operation has occured
+// if stack is empty
+if(stk_top==0){
+shift();
+no_operation=false;
+}
+
+// if stack top followed by current shift exists, shift it
+if(stk[stk_top]=='E' && (str[str_pos]=='2' || str[str_pos]=='3') && no_operation==true){
+shift();
+no_operation=false;
+}
+
+// check any reductions
+// reduction 1
+if(stk[stk_top-1]=='4' && no_operation==true){
+stk[stk_top-1]='E';
+no_operation==false;
+printf("Reduce E -> 4\n");
+}
+
+// reduction 2
+if(stk[stk_top-1]=='3' && stk[stk_top-2]=='E' && stk[stk_top-3]=='3' && no_operation==true){
+stk_top=stk_top-2;
+stk[stk_top-1]='E';
+no_operation==false;
+printf("Reduce E -> 3E3\n");
+}
+
+// reduction 3
+if(stk[stk_top-1]=='2' && stk[stk_top-2]=='E' && stk[stk_top-3]=='2' && no_operation==true){
+stk_top=stk_top-2;
+stk[stk_top-1]='E';
+no_operation==false;
+printf("Reduce E -> 2E2\n");
+}
+
+// no operation then just shift
+if(no_operation && str[str_pos]!='$'){
+shift();
+no_operation=false;
+}
+
+if(no_operation==false)
+shift_reduce_parser();
+
+}
+
+int main(){
+printf("Enter string ending with $: \n");
+scanf("%s",str);
+shift_reduce_parser();
+
+if(stk[stk_top-1]=='E')
+printf("String is accepted\n");
+else
+printf("String is rejected\n");
+return 0;
+
+}
